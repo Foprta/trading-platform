@@ -1,0 +1,41 @@
+<mat-card>
+  <form [formGroup]="orderForm">
+    <mat-radio-group formControlName="orderSide">
+      <mat-radio-button value="buy">
+        Buy
+      </mat-radio-button>
+      <mat-radio-button value="sell">
+        Sell
+      </mat-radio-button>
+    </mat-radio-group>
+
+    <br>
+
+    <mat-radio-group formControlName="orderType">
+      <mat-radio-button value="market">
+        Market
+      </mat-radio-button>
+      <mat-radio-button value="limit">
+        Limit
+      </mat-radio-button>
+    </mat-radio-group>
+
+    <br>
+
+    <mat-form-field>
+      <input formControlName="takeProfit" matInput placeholder="Take-Profit">
+    </mat-form-field>
+
+    <br>
+
+    <mat-form-field>
+      <input formControlName="price" matInput placeholder="Price">
+    </mat-form-field>
+
+    <br>
+
+    <mat-form-field>
+      <input formControlName="stopLoss" matInput placeholder="Stop-Loss">
+    </mat-form-field>
+  </form>
+</mat-card>
