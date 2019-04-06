@@ -12,13 +12,16 @@ import {MatCardModule} from '@angular/material/card';
 
 
 import { ReactiveFormsModule } from '@angular/forms';
+import { GraphicComponent } from './graphic/graphic.component';
+
 
 const routes: Routes = [
-  { path: '', component: TradingComponent}
+  { path: '', component: TradingComponent},
+  { path: 'graphic', component: GraphicComponent}
 ];
 
 @NgModule({
-  declarations: [TradingComponent],
+  declarations: [TradingComponent, GraphicComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
