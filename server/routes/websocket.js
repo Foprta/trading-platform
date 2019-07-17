@@ -1,33 +1,40 @@
-console.log("rts/ws")
-
 const wss = require("../configs/websocket");
 const wsController = require("../controllers/websocket");
 
-
-
 wss.on('connection', function connection(ws) {
   ws.isAlive = true;
-  ws.on('pong', heartbeat);
   console.log("connected");
 
   wsController.makeConnection(ws);
 
-  ws.on('message', function incoming(data) {
-    wsController.subscribeForTrades(ws, data);
+  ws.on('message', function(data) {
+    if (JSON.parse(data) === 'pong') {
+      heartbeat(ws);
+    }
+    else {
+      wsController.handleRequest(ws, data);
+    }
   });
+
+  ws.on('close', function() {
+    wsController.closeConnection(ws);
+  })
 });
 
-function noop() {}
-
-function heartbeat() {
-  this.isAlive = true;
+function heartbeat(ws) {
+  ws.isAlive = true;
 }
 
 const interval = setInterval(function ping() {
+  console.log(wss.clients.size);
   wss.clients.forEach(function each(ws) {
-    if (ws.isAlive === false) wsController.closeConnection(ws);
+    if (ws.isAlive === false) {
+      wsController.closeConnection(ws);
+      return ws.terminate();
+    }
 
     ws.isAlive = false;
-    ws.ping(noop);
+    ws.send('"ping"');
   });
-}, 30000);
+}, 5000);
+

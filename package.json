@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "concurrently -c \"red,green\" -n \"ANGULAR,SERVER\" \"ng build --watch\" \"nodemon server/index.js\"",
+    "start": "rm -rf dist & concurrently -c \"red,green\" -n \"ANGULAR,SERVER\" \"ng build --watch\" \"nodemon server/index.js\"",
     "build": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
@@ -21,6 +21,7 @@
     "@angular/platform-browser": "^7.2.12",
     "@angular/platform-browser-dynamic": "^7.2.12",
     "@angular/router": "^7.2.12",
+    "concurrently": "^4.1.1",
     "core-js": "^2.5.4",
     "d3": "^5.9.2",
     "express": "^4.16.4",

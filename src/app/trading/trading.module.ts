@@ -13,6 +13,7 @@ import {MatCardModule} from '@angular/material/card';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { GraphicComponent } from './graphic/graphic.component';
+import {WebsocketService} from '../shared/services/websocket.service';
 
 
 const routes: Routes = [
@@ -31,6 +32,7 @@ const routes: Routes = [
     MatSlideToggleModule,
     MatCardModule,
     ReactiveFormsModule
-  ]
+  ],
+  providers: [WebsocketService]
 })
 export class TradingModule { }

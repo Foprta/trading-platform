@@ -1,5 +1,3 @@
-console.log("mdls/bnc")
-
 class BinanceClient {
   constructor(key, secret, ws) {
     this.connection = require("node-binance-api")().options({
