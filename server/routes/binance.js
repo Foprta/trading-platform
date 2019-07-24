@@ -20,50 +20,64 @@ module.exports.close = function close(ws) {
     connections.splice(index, 1);
   }
   catch (e) {
-    console.log(e);
+    console.error(e);
   }
 }
 
 module.exports.unsub = function unsub(ws, d) {
   const index = connections.findIndex((e) => e.ws === ws);
-  console.log(d);
   try {
-    connections[index].binance.websockets.terminate(d);
-    delete connections[index].symbols[d.split("@")[0]];
+    connections[index].binance.websockets.terminate(d.toLowerCase());
   }
   catch (e) {
-    console.log(e);
+    console.error(e);
   }
 }
 
-module.exports.candles = function candles(ws, data) {
+module.exports.candlesticks = function candlesticks(ws, data) {
   let client = connections.find((e) => e.ws === ws);
 
-  client.symbols[data.split("@")[0]] = {makers: 0, takers: 0};
-
-console.log(data.split("@")[0]);
-
-  client.binance.candlesticks(data.split("@")[0].toUpperCase(), "5m", (error, ticks, symbol) => {
-    console.log("candlesticks()", ticks);
-    let last_tick = ticks[ticks.length - 1];
-    let [time, open, high, low, close, volume, closeTime, assetVolume, trades, buyBaseVolume, buyAssetVolume, ignored] = last_tick;
-    console.log(symbol+" last close: "+close);
-  }, {limit: 500});
+  try {
+    client.binance.candlesticks(data.split("@")[0], "1m", (error, ticks, symbol) => {
+      if (Object.keys(ticks).length == 0) {
+        console.error("Empty candles", error);
+        this.candlesticks(ws, data);
+      } else {
+        try {
+          ws.send(JSON.stringify({type: "candlesticks", data: ticks}));
+        } catch(e) {
+          console.error(e);
+        }
+        this.candlestick(ws, data);
+      }
+    }, {limit: 500});
+  } catch(e) {
+    console.error(e)
+  }
 }
+
+module.exports.candlestick = function candlestick(ws, data) {
+  let client = connections.find((e) => e.ws === ws);
+  
+  try {
+    client.binance.websockets.candlesticks(data.split("@")[0], "1m", candlestick => {
+      try {
+        ws.send(JSON.stringify({type: "candlestick", data: candlestick}));
+      } catch(e) {
+        client.binance.websockets.terminate(data);
+      }
+    })
+  } catch(e) {
+    console.error(e)
+  }
+
+} 
 
 module.exports.trades = function trades(ws, data) {
   let client = connections.find((e) => e.ws === ws);
 
-  client.symbols[data.split("@")[0]] = {makers: 0, takers: 0};
-
   client.binance.websockets.trades(data.split("@")[0], (trades) => {
     let {e: eventType, E: eventTime, s: symbol, p: price, q: quantity, m: maker, a: tradeId} = trades;
-    if (maker) {
-      client.symbols[symbol.toLowerCase()].makers += parseFloat(quantity);
-    } else {
-      client.symbols[symbol.toLowerCase()].takers += parseFloat(quantity);
-    }
-
-    ws.send(`{"symbol" : "${symbol}",  "makers" : "${client.symbols[symbol.toLowerCase()].makers.toFixed(4)}" , "takers" : "${client.symbols[symbol.toLowerCase()].takers.toFixed(4)}"}`);
+    ws.send(JSON.stringify({type: "trades", data: {maker: trades.maker, quantity: trades.quantity}}));
   })
 }

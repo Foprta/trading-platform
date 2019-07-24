@@ -26,10 +26,10 @@ function heartbeat(ws) {
 }
 
 const interval = setInterval(function ping() {
-  console.log(wss.clients.size);
   wss.clients.forEach(function each(ws) {
     if (ws.isAlive === false) {
       wsController.closeConnection(ws);
+      console.log("closed with pong");
       return ws.terminate();
     }
 

@@ -13,7 +13,6 @@ export class TradingComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('Jopa');
     this.orderForm = this.fb.group({
       orderSide: ['buy'],
       orderType: ['market'],
@@ -21,6 +20,5 @@ export class TradingComponent implements OnInit {
       price: [],
       stopLoss: [],
     });
-    console.log(this.orderForm.controls.stopLoss);
   }
 }

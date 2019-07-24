@@ -15,16 +15,15 @@ export class Message {
 })
 export class WebsocketService {
   private subscriptions: string[] = [];
-  private socket$: any;
+  private socket$: any = undefined;
   private pingTimeout;
-
-  // noinspection JSAnnotator
-
 
   constructor(private wsHandler: WsHandlerService) {
   }
 
+  // Создает соединение настраивая пинг-понг
   public connect() {
+    if (this.socket$ != undefined) return;
     this.socket$ = webSocket('ws://localhost:8080');
     this.socket$.next('pong');
 
@@ -39,10 +38,12 @@ export class WebsocketService {
       );
   }
 
+  // Закрывает соединение
   public disconnect() {
     this.socket$.complete();
   }
 
+  // Логика пинг-понга
   private heartbeat() {
     this.socket$.next('pong');
     clearTimeout(this.pingTimeout);
@@ -52,18 +53,24 @@ export class WebsocketService {
     }, 5000 + 1000);
   }
 
+  // Подписка на инфу
+  // Если уже подписан, то ретурн
+  // В массив подписок добавляется "BTCUSDT@candles"
   public subscribe(d) {
     if (this.subscriptions.includes(d.data)) {return; }
     this.subscriptions.push(d.data);
     this.socket$.next(d);
   }
 
+  // Ищет подписку в массиве
+  // Если есть, то посылает отписку
   public unsubscribe(d) {
     const index = this.subscriptions.indexOf(d.data);
     if (index > -1) {
       this.subscriptions.splice(index, 1);
+      this.socket$.next(d);
+    } else {
+      console.error("there is no sub");
     }
-
-    this.socket$.next(d);
   }
 }

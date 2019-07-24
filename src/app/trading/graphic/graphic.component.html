@@ -1,11 +1,1 @@
-<script [src]="graphic"></script>
-<br>
-<br>
-<button (click)="subscribe()">
-  Subscribe
-</button>
-<br><button (click)="unsubscribe()">
-  Unsubscribe
-</button>
-<br>
-<div id="graphic" style="margin: 50px; border: 1px solid black; width: 1400px; height: 500px">
+<div (mousemove)="onMouseMove($event)" id="graphic" style="margin: 50px; border: 1px solid black; width: 1400px; height: 500px">
