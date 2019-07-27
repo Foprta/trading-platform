@@ -44,6 +44,8 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit {
     private wsh: WsHandlerService) {
   }
 
+  //#region WS_EVENTS
+
   // Подключение к ВебСокету
   connect() {
     this.ws.connect();
@@ -72,6 +74,8 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit {
     this.ws.getData(msg);
   }
 
+  //#endregion WS_EVENTS
+
   log(e) {
     console.log(e)
   }
@@ -92,8 +96,8 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit {
 
     // Если свечи загружены не все
     if (gP.minTime < gP.minLoadedTime && !gP.loadingCandles) {
-        gP.loadingCandles = true;
-        this.getData("BTCUSDT@candlesticks", gP.minLoadedTime - 1);
+      gP.loadingCandles = true;
+      this.getData("BTCUSDT@candlesticks", gP.minLoadedTime - 1);
     }
 
     // Инициализация шкалы цен
@@ -192,14 +196,12 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit {
           // Тень
           graphContext.fillRect(xScale(e[0]) + shadowShift, yScale(e[3]), 1, yScale(e[2]) - yScale(e[3]));
           // Свеча
-
           graphContext.fillRect(xScale(e[0]) + 1, yScale(e[1]), gP.candleWide - 2, yScale(e[4]) - yScale(e[1]));
         } else {
           graphContext.fillStyle = 'red';
           // Тень
           graphContext.fillRect(xScale(e[0]) + shadowShift, yScale(e[3]), 1, yScale(e[2]) - yScale(e[3]));
           // Свеча
-          //console.log(xScale(e[0]) + 1, yScale(e[1]), gP.candleWide - 2, yScale(e[4]) - yScale(e[1]))
           graphContext.fillRect(xScale(e[0]) + 1, yScale(e[1]), gP.candleWide - 2, yScale(e[4]) - yScale(e[1]));
         }
       });
@@ -232,6 +234,9 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit {
     this.redraw();
   }
 
+  //#region MOUSE_EVENTS
+
+  //#region MOUSE_GRAPHIC_EVENTS
   onMouseOver(e) {
     this.graphicProperties.mouseOver = true;
     this.redraw();
@@ -269,16 +274,15 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit {
     let currX = e.screenX;
     let currY = e.screenY;
     let gP = this.graphicProperties;
-    let conf = this.conf;
 
-    function mover(event) {
+    let mover = (event) => {
       event.preventDefault();
-      let differenceX = (gP.maxTime - gP.minTime) / conf.width;
+      let differenceX = (gP.maxTime - gP.minTime) / this.conf.width;
       gP.maxTime -= (event.screenX - currX) * differenceX;
       gP.minTime -= (event.screenX - currX) * differenceX;
       currX = event.screenX;
       if (!gP.autoscale) {
-        let differenceY = (gP.maxPrice - gP.minPrice) / conf.height;
+        let differenceY = (gP.maxPrice - gP.minPrice) / this.conf.height;
         gP.maxPrice += (event.screenY - currY) * differenceY;
         gP.minPrice += (event.screenY - currY) * differenceY;
         currY = event.screenY;
@@ -287,7 +291,6 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit {
 
     let upper = (event) => {
       event.preventDefault();
-      console.log("upper")
       document.removeEventListener("mousemove", mover)
       document.removeEventListener("mouseup", upper)
     }
@@ -306,6 +309,87 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit {
       this.redraw();
     }
   }
+
+  //#endregion MOUSE_GRAPHIC_EVENTS
+
+  //#region MOUSE_PRICE_EVENTS
+
+  onMouseDownPrice(e) {
+    if (e.which != 1) {
+      return;
+    }
+
+    let currY = e.screenY;
+    let gP = this.graphicProperties;
+
+    gP.autoscale = false;
+
+    let mover = (event) => {
+      event.preventDefault();
+      let differenceY = (gP.maxPrice - gP.minPrice) / this.conf.height;
+      gP.maxPrice += (event.screenY - currY) * differenceY;
+      gP.minPrice -= (event.screenY - currY) * differenceY;
+      currY = event.screenY;
+      this.redraw();
+    }
+
+    let upper = (event) => {
+      event.preventDefault();
+      document.removeEventListener("mousemove", mover)
+      document.removeEventListener("mouseup", upper)
+    }
+
+    document.addEventListener("mousemove", mover);
+
+    document.addEventListener("mouseup", upper)
+  }
+
+  //#endregion MOUSE_PRICE_EVENTS
+
+  //#region MOUSE_TIME_EVENTS
+
+  onMouseDownTime(e) {
+    if (e.which != 1) {
+      return;
+    }
+
+    let currX = e.screenX;
+    let gP = this.graphicProperties;
+
+    let mover = (event) => {
+      event.preventDefault();
+      let prevWindow = gP.maxTime - gP.minTime;
+      let differenceX = (gP.maxTime - gP.minTime) / this.conf.width;
+      gP.maxTime += (event.screenX - currX) * differenceX;
+      gP.minTime -= (event.screenX - currX) * differenceX;
+      currX = event.screenX;
+      let currentWindow = gP.maxTime - gP.minTime;
+      gP.realCandleWide *= prevWindow / currentWindow;
+      
+      gP.candleWide = Math.floor(gP.realCandleWide);
+      if (gP.candleWide % 2 === 0) {
+        gP.candleWide--;
+      }
+  
+
+
+      this.redraw();
+    }
+
+    let upper = (event) => {
+      event.preventDefault();
+      document.removeEventListener("mousemove", mover)
+      document.removeEventListener("mouseup", upper)
+    }
+
+    document.addEventListener("mousemove", mover);
+
+    document.addEventListener("mouseup", upper)
+  }
+
+  //#endregion MOUSE_TIME_EVENTS
+
+  //#endregion MOUSE_EVENTS
 
   ngOnInit() {
     // Подписка на получение данных с сервака

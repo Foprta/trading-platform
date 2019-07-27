@@ -4,10 +4,10 @@
         id="graphic"  (resized)="graphicResized($event)">
         <canvas></canvas>
     </div>
-    <div id="price-scale">
+    <div id="price-scale" (mousedown)=onMouseDownPrice($event)>
         <canvas></canvas>
     </div>
-    <div id="time-scale">
+    <div id="time-scale" (mousedown)=onMouseDownTime($event)>
         <canvas></canvas>
     </div>
     <div id="settings"></div>

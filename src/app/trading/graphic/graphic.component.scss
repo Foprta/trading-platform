@@ -6,6 +6,7 @@ canvas {
 }
 
 #graph-block {
+    overflow: hidden;
     background: $bck-color;
     border: $border;
     display: grid;
@@ -22,25 +23,20 @@ canvas {
 
     #price-scale {
         grid-area: price-scale;
-        padding: 0;
-        margin: 0;
+        cursor: ns-resize;
     }
 
     #graphic {
         grid-area: graphic;
-        padding: 0;
-        margin: 0;
+        cursor: crosshair;
     }
 
     #time-scale {
         grid-area: time-scale;
-        padding: 0;
-        margin: 0;
+        cursor: ew-resize;
     }
 
     #settings {
         grid-area: settings;
-        padding: 0;
-        margin: 0;
     }
 }
