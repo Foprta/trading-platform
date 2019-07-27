@@ -1,1 +1,14 @@
-<div (mousemove)="onMouseMove($event)" id="graphic" style="margin: 50px; border: 1px solid black; width: 1400px; height: 500px">
+<button (click)="switchAutoscale()">Autoscale {{graphicProperties.autoscale ? "On" : "Off"}}</button>
+<div id="graph-block">
+    <div (mouseover)="onMouseOver($event)" (mouseleave)="onMouseLeave($event)" (mousemove)="onMouseMove($event)" (mousewheel)="onMouseWheel($event)" (mousedown)="onMouseDown($event)"
+        id="graphic"  (resized)="graphicResized($event)">
+        <canvas></canvas>
+    </div>
+    <div id="price-scale">
+        <canvas></canvas>
+    </div>
+    <div id="time-scale">
+        <canvas></canvas>
+    </div>
+    <div id="settings"></div>
+</div>

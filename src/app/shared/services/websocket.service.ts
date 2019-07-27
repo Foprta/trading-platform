@@ -5,7 +5,8 @@ import {WsHandlerService} from './ws-handler.service';
 export class Message {
   constructor(
     public type: string,
-    public data: string
+    public data: string,
+    public settings?: any
   ) {
   }
 }
@@ -56,7 +57,7 @@ export class WebsocketService {
   // Подписка на инфу
   // Если уже подписан, то ретурн
   // В массив подписок добавляется "BTCUSDT@candles"
-  public subscribe(d) {
+  public subscribeData(d) {
     if (this.subscriptions.includes(d.data)) {return; }
     this.subscriptions.push(d.data);
     this.socket$.next(d);
@@ -64,7 +65,7 @@ export class WebsocketService {
 
   // Ищет подписку в массиве
   // Если есть, то посылает отписку
-  public unsubscribe(d) {
+  public unsubscribeData(d) {
     const index = this.subscriptions.indexOf(d.data);
     if (index > -1) {
       this.subscriptions.splice(index, 1);
@@ -72,5 +73,10 @@ export class WebsocketService {
     } else {
       console.error("there is no sub");
     }
+  }
+
+  // Одноразовое получение инфы
+  public getData(d) {
+    this.socket$.next(d);
   }
 }

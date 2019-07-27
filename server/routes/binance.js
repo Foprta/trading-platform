@@ -34,23 +34,22 @@ module.exports.unsub = function unsub(ws, d) {
   }
 }
 
-module.exports.candlesticks = function candlesticks(ws, data) {
+module.exports.candlesticks = function candlesticks(ws, data, settings) {
   let client = connections.find((e) => e.ws === ws);
 
   try {
     client.binance.candlesticks(data.split("@")[0], "1m", (error, ticks, symbol) => {
-      if (Object.keys(ticks).length == 0) {
-        console.error("Empty candles", error);
-        this.candlesticks(ws, data);
+      if (error) {
+        console.error(error);
+        this.candlesticks(ws, data, settings);
       } else {
         try {
           ws.send(JSON.stringify({type: "candlesticks", data: ticks}));
         } catch(e) {
           console.error(e);
         }
-        this.candlestick(ws, data);
       }
-    }, {limit: 500});
+    }, {limit: 500, endTime: settings || undefined});
   } catch(e) {
     console.error(e)
   }
@@ -58,7 +57,7 @@ module.exports.candlesticks = function candlesticks(ws, data) {
 
 module.exports.candlestick = function candlestick(ws, data) {
   let client = connections.find((e) => e.ws === ws);
-  
+
   try {
     client.binance.websockets.candlesticks(data.split("@")[0], "1m", candlestick => {
       try {

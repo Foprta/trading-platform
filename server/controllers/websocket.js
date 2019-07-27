@@ -9,16 +9,25 @@ module.exports.subscribe = function subscribe(ws, data) {
       break;
     }
     case "kline_1m": {
-      binance.candlesticks(ws, data.split("@")[0]);
+      binance.candlestick(ws, data.split("@")[0]);
       break;
     }
   }
-
 }
 
 module.exports.unsubscribe = function unsubscribe(ws, data) {
   console.log("unsubscribing");
   binance.unsub(ws, data);
+}
+
+module.exports.get = function get(ws, data, settings) {
+  const type = data.split("@")[1];
+  switch (type) {
+    case "candlesticks": {
+      binance.candlesticks(ws, data.split("@")[0], settings);
+      break;
+    }
+  }
 }
 
 module.exports.makeConnection = function makeConnection(ws) {
@@ -42,6 +51,10 @@ module.exports.handleRequest = function handleRequest(ws, data) {
     }
     case "unsub": {
       this.unsubscribe(ws, message.data);
+      break;
+    }
+    case "get": {
+      this.get(ws, message.data, message.settings);
       break;
     }
   }

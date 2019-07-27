@@ -1,0 +1,46 @@
+$bck-color: black;
+$border: 1px solid $bck-color;
+
+canvas {
+    display: block;
+}
+
+#graph-block {
+    background: $bck-color;
+    border: $border;
+    display: grid;
+    grid-gap: 1px;
+    grid-template-areas:
+        "graphic price-scale"
+        "time-scale settings";
+    grid-template-rows: minmax(400px, 100%) 40px;
+    grid-template-columns: minmax(600px, 100%) 80px;
+
+    div {
+        background-color: white;
+    }
+
+    #price-scale {
+        grid-area: price-scale;
+        padding: 0;
+        margin: 0;
+    }
+
+    #graphic {
+        grid-area: graphic;
+        padding: 0;
+        margin: 0;
+    }
+
+    #time-scale {
+        grid-area: time-scale;
+        padding: 0;
+        margin: 0;
+    }
+
+    #settings {
+        grid-area: settings;
+        padding: 0;
+        margin: 0;
+    }
+}

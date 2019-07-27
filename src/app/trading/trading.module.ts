@@ -15,6 +15,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { GraphicComponent } from './graphic/graphic.component';
 import {WebsocketService} from '../shared/services/websocket.service';
 import { WsHandlerService } from '../shared/services/ws-handler.service';
+import { AngularResizedEventModule } from 'angular-resize-event';
 
 
 const routes: Routes = [
@@ -32,7 +33,8 @@ const routes: Routes = [
     MatRadioModule,
     MatSlideToggleModule,
     MatCardModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    AngularResizedEventModule
   ],
   providers: [WebsocketService, WsHandlerService]
 })
