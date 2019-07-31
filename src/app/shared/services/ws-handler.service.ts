@@ -1,26 +1,25 @@
 import { Injectable, OnInit } from '@angular/core';
-import {Subject} from 'rxjs';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class WsHandlerService implements OnInit {
-  public dataStorage = {trades: new Subject<object>(), candlesticks: new Subject<any>(), candlestick: new Subject<object>()};
+  public dataStorage = {trades: {}, candlesticks: {}, kline: {}};
 
 
   public handleInput(data) {
     switch (data.type) {
       case "trades": {
-        this.dataStorage.trades.next(data.data);
+        this.dataStorage.trades[data.symbol+"@trades"].next(data.data);
         break;
       }
       case "candlesticks": {
-        this.dataStorage.candlesticks.next(data.data);
+        this.dataStorage.candlesticks[data.symbol+"@candlesticks_"+data.time].next(data.data);
         break;
       }
-      case "candlestick": {
-        this.dataStorage.candlestick.next(data.data);
+      case "kline": {
+        this.dataStorage.kline[data.symbol+"@kline_"+data.time].next(data.data);
         break;
       }
     }

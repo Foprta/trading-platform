@@ -1,60 +1,56 @@
 const binance = require("../routes/binance");
 
 module.exports.subscribe = function subscribe(ws, data) {
-  console.log("subscribing");
-  const type = data.split("@")[1];
+  const type = data.type;
   switch (type) {
     case "trades": {
-      binance.trades(ws, data.split("@")[0]);
+      binance.trades(ws, data.symbol);
       break;
     }
-    case "kline_1m": {
-      binance.candlestick(ws, data.split("@")[0]);
+    case "kline": {
+      binance.candlestick(ws, data.symbol, data.candlesTime);
       break;
     }
   }
 }
 
 module.exports.unsubscribe = function unsubscribe(ws, data) {
-  console.log("unsubscribing");
-  binance.unsub(ws, data);
+  binance.unsub(ws, data.symbol, data.type, data.candlesTime);
 }
 
-module.exports.get = function get(ws, data, settings) {
-  const type = data.split("@")[1];
+module.exports.get = function get(ws, data) {
+  const type = data.type;
   switch (type) {
     case "candlesticks": {
-      binance.candlesticks(ws, data.split("@")[0], settings);
+      binance.candlesticks(ws, data.symbol, data.candlesTime, data.endTime);
       break;
     }
   }
 }
 
 module.exports.makeConnection = function makeConnection(ws) {
-  console.log("creatingConnection");
   binance.create(ws);
 }
 
 module.exports.closeConnection = function closeConnection(ws) {
-  console.log("closingConnection");
   binance.close(ws);
 }
 
 // Обработка полученных сообщений
 module.exports.handleRequest = function handleRequest(ws, data) {
-  console.log(data);
-  const message = JSON.parse(data);
-  switch(message.type) {
+  data = JSON.parse(data);
+  const message = data.data;
+  switch (data.type) {
     case "sub": {
-      this.subscribe(ws, message.data);
+      this.subscribe(ws, message);
       break;
     }
     case "unsub": {
-      this.unsubscribe(ws, message.data);
+      this.unsubscribe(ws, message);
       break;
     }
     case "get": {
-      this.get(ws, message.data, message.settings);
+      this.get(ws, message);
       break;
     }
   }

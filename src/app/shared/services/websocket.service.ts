@@ -1,12 +1,12 @@
-import {Injectable, Output} from '@angular/core';
-import {webSocket} from 'rxjs/webSocket';
-import {WsHandlerService} from './ws-handler.service';
+import { Injectable } from '@angular/core';
+import { webSocket } from 'rxjs/webSocket';
+import { WsHandlerService } from './ws-handler.service';
+import { Subject } from 'rxjs';
 
 export class Message {
   constructor(
     public type: string,
-    public data: string,
-    public settings?: any
+    public data: object
   ) {
   }
 }
@@ -15,7 +15,7 @@ export class Message {
   providedIn: 'root'
 })
 export class WebsocketService {
-  private subscriptions: string[] = [];
+  private subscriptions: object = {};
   private socket$: any = undefined;
   private pingTimeout;
 
@@ -58,17 +58,25 @@ export class WebsocketService {
   // Если уже подписан, то ретурн
   // В массив подписок добавляется "BTCUSDT@candles"
   public subscribeData(d) {
-    if (this.subscriptions.includes(d.data)) {return; }
-    this.subscriptions.push(d.data);
-    this.socket$.next(d);
+    const subscribtion = d.data.symbol + "@" + d.data.type + "_" + d.data.candlesTime;
+    if (this.subscriptions[subscribtion]) {
+      this.subscriptions[subscribtion]++;
+    } else {
+      this.wsHandler.dataStorage.kline[subscribtion] = new Subject<object>();
+      this.subscriptions[subscribtion] = 1;
+      this.socket$.next(d);
+    }
   }
 
   // Ищет подписку в массиве
   // Если есть, то посылает отписку
   public unsubscribeData(d) {
-    const index = this.subscriptions.indexOf(d.data);
-    if (index > -1) {
-      this.subscriptions.splice(index, 1);
+    const subscribtion = d.data.symbol + "@" + d.data.type + "_" + d.data.candlesTime;
+    console.log(this.subscriptions);
+    if (this.subscriptions[subscribtion] > 1) {
+      this.subscriptions[subscribtion]--;
+    } else if (this.subscriptions[subscribtion] == 1) {
+      this.subscriptions[subscribtion]--;
       this.socket$.next(d);
     } else {
       console.error("there is no sub");
@@ -77,6 +85,10 @@ export class WebsocketService {
 
   // Одноразовое получение инфы
   public getData(d) {
+    const subscribtion = d.data.symbol + "@" + d.data.type + "_" + d.data.candlesTime;
+    if (!this.wsHandler.dataStorage.candlesticks[subscribtion]) {
+      this.wsHandler.dataStorage.candlesticks[subscribtion] = new Subject<object>();
+    }
     this.socket$.next(d);
   }
 }

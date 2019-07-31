@@ -24,46 +24,48 @@ module.exports.close = function close(ws) {
   }
 }
 
-module.exports.unsub = function unsub(ws, d) {
+module.exports.unsub = function unsub(ws, symbol, type, time) {
   const index = connections.findIndex((e) => e.ws === ws);
   try {
-    connections[index].binance.websockets.terminate(d.toLowerCase());
+    console.log(symbol+"@"+type+"_"+time)
+    connections[index].binance.websockets.terminate((symbol+"@"+type+"_"+time).toLowerCase());
   }
   catch (e) {
     console.error(e);
   }
 }
 
-module.exports.candlesticks = function candlesticks(ws, data, settings) {
+module.exports.candlesticks = function candlesticks(ws, symbol, time, endTime) {
   let client = connections.find((e) => e.ws === ws);
 
   try {
-    client.binance.candlesticks(data.split("@")[0], "1m", (error, ticks, symbol) => {
+    client.binance.candlesticks(symbol, time, (error, ticks, symbol) => {
       if (error) {
         console.error(error);
-        this.candlesticks(ws, data, settings);
+        this.candlesticks(ws, symbol, time, endTime);
       } else {
         try {
-          ws.send(JSON.stringify({type: "candlesticks", data: ticks}));
+          ws.send(JSON.stringify({type: "candlesticks", symbol: symbol, time: time, data: ticks}));
         } catch(e) {
           console.error(e);
         }
       }
-    }, {limit: 500, endTime: settings || undefined});
+    }, {limit: 500, endTime: endTime || undefined});
   } catch(e) {
     console.error(e)
   }
 }
 
-module.exports.candlestick = function candlestick(ws, data) {
+module.exports.candlestick = function candlestick(ws, symbol, time) {
   let client = connections.find((e) => e.ws === ws);
 
   try {
-    client.binance.websockets.candlesticks(data.split("@")[0], "1m", candlestick => {
+    client.binance.websockets.candlesticks(symbol, time, candlestick => {
       try {
-        ws.send(JSON.stringify({type: "candlestick", data: candlestick}));
+        ws.send(JSON.stringify({type: "kline", symbol: symbol, time: time, data: candlestick}));
       } catch(e) {
-        client.binance.websockets.terminate(data);
+        console.error(e)
+        client.binance.websockets.terminate(symbol+"@kline_"+time);
       }
     })
   } catch(e) {
@@ -72,11 +74,11 @@ module.exports.candlestick = function candlestick(ws, data) {
 
 } 
 
-module.exports.trades = function trades(ws, data) {
+module.exports.trades = function trades(ws, symbol) {
   let client = connections.find((e) => e.ws === ws);
 
-  client.binance.websockets.trades(data.split("@")[0], (trades) => {
+  client.binance.websockets.trades(symbol, (trades) => {
     let {e: eventType, E: eventTime, s: symbol, p: price, q: quantity, m: maker, a: tradeId} = trades;
-    ws.send(JSON.stringify({type: "trades", data: {maker: trades.maker, quantity: trades.quantity}}));
+    ws.send(JSON.stringify({type: "trades", symbol, data: {maker: trades.maker, quantity: trades.quantity}}));
   })
 }

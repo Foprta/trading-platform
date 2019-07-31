@@ -3,7 +3,6 @@ const wsController = require("../controllers/websocket");
 
 wss.on('connection', function connection(ws) {
   ws.isAlive = true;
-  console.log("connected");
 
   wsController.makeConnection(ws);
 
