@@ -23,6 +23,7 @@ canvas {
     grid-template-columns: minmax($graph-width, 100%) $price-width;
     min-width: $price-width + $graph-width;
     min-height: $time-height + $graph-height;
+    height: auto;
 
     div {
         background-color: white;

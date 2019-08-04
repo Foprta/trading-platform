@@ -1,3 +1,16 @@
 mat-card {
     overflow: hidden;
 }
+
+.graphics {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: stretch;
+    width: 100%;
+    align-content: stretch;
+}
+
+form {
+    display: none;
+}
