@@ -12,13 +12,17 @@ export class TradingComponent implements OnInit {
   constructor(private fb: FormBuilder) {
   }
 
+  log(e) {
+    console.log(e)
+  }
+
+  
+
   ngOnInit() {
     this.orderForm = this.fb.group({
       orderSide: ['buy'],
       orderType: ['market'],
-      takeProfit: [],
-      price: [],
-      stopLoss: [],
+      orderValue: [10]
     });
   }
 }

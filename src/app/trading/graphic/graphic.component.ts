@@ -392,6 +392,13 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
     }
   }
 
+  onMouseDoubleClick(e) {
+    e.preventDefault();
+    let gP = this.graphicProperties;
+    if (!gP.candles.length) return;
+    console.log(e)
+  }
+
   //#endregion MOUSE_GRAPHIC_EVENTS
 
   //#region MOUSE_PRICE_EVENTS

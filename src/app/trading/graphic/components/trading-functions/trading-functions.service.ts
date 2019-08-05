@@ -6,4 +6,8 @@ import { Injectable } from '@angular/core';
 export class TradingFunctionsService {
 
   constructor() { }
+
+  call() {
+    console.log("calling")
+  }
 }

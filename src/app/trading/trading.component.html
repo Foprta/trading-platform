@@ -1,47 +1,30 @@
-<mat-card>
-  <form [formGroup]="orderForm">
-    <mat-radio-group formControlName="orderSide">
-      <mat-radio-button value="buy">
-        Buy
-      </mat-radio-button>
-      <mat-radio-button value="sell">
-        Sell
-      </mat-radio-button>
-    </mat-radio-group>
+<mat-sidenav-container class="container">
+  <mat-sidenav class="sidenav" position="end" mode="side" [opened]="true">
+    <div class="trading-form">
 
-    <br>
+      <form [formGroup]="orderForm">
+        <mat-button-toggle-group class="selector-group" formControlName="orderSide">
+          <mat-button-toggle value="buy">BUY</mat-button-toggle>
+          <mat-button-toggle value="sell">SELL</mat-button-toggle>
+        </mat-button-toggle-group>
 
-    <mat-radio-group formControlName="orderType">
-      <mat-radio-button value="market">
-        Market
-      </mat-radio-button>
-      <mat-radio-button value="limit">
-        Limit
-      </mat-radio-button>
-    </mat-radio-group>
+        <mat-button-toggle-group class="selector-group" formControlName="orderType">
+          <mat-button-toggle value="market">MRKT</mat-button-toggle>
+          <mat-button-toggle value="italic">LMT</mat-button-toggle>
+          <mat-button-toggle value="italic">T-P/S-L</mat-button-toggle>
+        </mat-button-toggle-group>
 
-    <br>
+        <mat-slider (input)="log($event)" class="selector-group" formControlName="orderValue" [max]="100" [step]="1"></mat-slider>
+      </form>
+    </div>
+  </mat-sidenav>
 
-    <mat-form-field>
-      <input formControlName="takeProfit" matInput placeholder="Take-Profit">
-    </mat-form-field>
+  <mat-sidenav-content>
 
-    <br>
-
-    <mat-form-field>
-      <input formControlName="price" matInput placeholder="Price">
-    </mat-form-field>
-
-    <br>
-
-    <mat-form-field>
-      <input formControlName="stopLoss" matInput placeholder="Stop-Loss">
-    </mat-form-field>
-  </form>
-
-  <div class="graphics">
-    <app-graphic [number]="1"></app-graphic>
-    <app-graphic [number]="2"></app-graphic>
-    <app-graphic [number]="3"></app-graphic>
-  </div>
-</mat-card>
+    <div class="graphics">
+      <app-graphic [number]="1"></app-graphic>
+      <app-graphic [number]="2"></app-graphic>
+      <app-graphic [number]="3"></app-graphic>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

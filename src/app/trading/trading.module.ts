@@ -3,24 +3,28 @@ import { CommonModule } from '@angular/common';
 import { TradingComponent } from './trading.component';
 import { Routes, RouterModule } from '@angular/router';
 
-import {MatInputModule} from '@angular/material/input';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatRadioModule} from '@angular/material/radio';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import {MatCardModule} from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSliderModule } from '@angular/material/slider';
 
-
-
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { GraphicComponent } from './graphic/graphic.component';
-import {WebsocketService} from '../shared/services/websocket.service';
+import { WebsocketService } from '../shared/services/websocket.service';
 import { WsHandlerService } from '../shared/services/ws-handler.service';
 import { AngularResizedEventModule } from 'angular-resize-event';
 
 
 const routes: Routes = [
-  { path: '', component: TradingComponent},
-  { path: 'graphic', component: GraphicComponent}
+  { path: '', component: TradingComponent },
+  { path: 'graphic', component: GraphicComponent }
 ];
 
 @NgModule({
@@ -33,8 +37,16 @@ const routes: Routes = [
     MatRadioModule,
     MatSlideToggleModule,
     MatCardModule,
+    MatTabsModule,
+    MatCheckboxModule,
+    MatIconModule,
+    MatSidenavModule,
+    MatSliderModule,
+    MatButtonToggleModule,
+    FormsModule,
     ReactiveFormsModule,
     AngularResizedEventModule
+
   ],
   providers: [WebsocketService, WsHandlerService]
 })

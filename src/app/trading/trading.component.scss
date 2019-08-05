@@ -1,7 +1,3 @@
-mat-card {
-    overflow: hidden;
-}
-
 .graphics {
     display: flex;
     flex-direction: row;
@@ -11,6 +7,27 @@ mat-card {
     align-content: stretch;
 }
 
-form {
-    display: none;
+.container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    .sidenav {
+        width: 300px;
+
+        .trading-form {
+
+            .selector-group {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+
+                mat-button-toggle {
+                    width: 100%;
+                }
+            }
+        }
+    }
 }
