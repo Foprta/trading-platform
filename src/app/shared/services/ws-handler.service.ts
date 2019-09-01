@@ -5,7 +5,7 @@ import { Injectable, OnInit } from '@angular/core';
   providedIn: 'root'
 })
 export class WsHandlerService implements OnInit {
-  public dataStorage = {trades: {}, candlesticks: {}, kline: {}};
+  public dataStorage = {trades: {}, candlesticks: {}, kline: {}, balance: undefined};
 
 
   public handleInput(data) {
@@ -20,6 +20,10 @@ export class WsHandlerService implements OnInit {
       }
       case "kline": {
         this.dataStorage.kline[data.symbol+"@kline_"+data.time].next(data.data);
+        break;
+      }
+      case "balance": {
+        this.dataStorage.balance.next(data.data);
         break;
       }
     }

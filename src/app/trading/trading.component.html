@@ -1,22 +1,6 @@
 <mat-sidenav-container class="container">
   <mat-sidenav class="sidenav" position="end" mode="side" [opened]="true">
-    <div class="trading-form">
-
-      <form [formGroup]="orderForm">
-        <mat-button-toggle-group class="selector-group" formControlName="orderSide">
-          <mat-button-toggle value="buy">BUY</mat-button-toggle>
-          <mat-button-toggle value="sell">SELL</mat-button-toggle>
-        </mat-button-toggle-group>
-
-        <mat-button-toggle-group class="selector-group" formControlName="orderType">
-          <mat-button-toggle value="market">MRKT</mat-button-toggle>
-          <mat-button-toggle value="italic">LMT</mat-button-toggle>
-          <mat-button-toggle value="italic">T-P/S-L</mat-button-toggle>
-        </mat-button-toggle-group>
-
-        <mat-slider (input)="log($event)" class="selector-group" formControlName="orderValue" [max]="100" [step]="1"></mat-slider>
-      </form>
-    </div>
+    <app-sidebar></app-sidebar>
   </mat-sidenav>
 
   <mat-sidenav-content>

@@ -2,7 +2,7 @@ import { AfterContentInit, Component, OnDestroy, OnInit, Input, AfterViewInit } 
 import { Message, WebsocketService } from '../../shared/services/websocket.service';
 import * as d3 from 'd3';
 import { WsHandlerService } from '../../shared/services/ws-handler.service';
-import { TradingFunctionsService } from './components/trading-functions/trading-functions.service'
+import { TradingService } from '../shared/trading.service';
 
 @Component({
   selector: 'app-graphic',
@@ -60,12 +60,14 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
     candles: [],
     mouseCoords: { x: -1, y: -1 },
     autoscale: true,
-    mouseOver: false
+    mouseOver: false,
+    yScale: undefined,
+    xScale: undefined
   }
 
   constructor(private ws: WebsocketService,
     private wsh: WsHandlerService,
-    private tfs: TradingFunctionsService) {
+    private ts: TradingService) {
   }
 
   //#region WS_EVENTS
@@ -92,9 +94,16 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
     this.ws.unsubscribeData(msg);
   }
 
+  // Одномоментное получение данных
   getData(settings) {
     const msg = new Message('get', settings);
     this.graphicProperties.loadingCandles = true;
+    this.ws.getData(msg);
+  }
+
+  // Одномоментное получение данных
+  sendOrder(settings) {
+    const msg = new Message('order', settings);
     this.ws.getData(msg);
   }
 
@@ -126,7 +135,6 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
     }
 
     // Инициализация шкалы цен
-    let yScale: d3.ScaleLinear<number, number>;
     if (gP.autoscale) {
       gP.minPrice = 100000000;
       gP.maxPrice = -1;
@@ -148,21 +156,20 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
     });
 
     if (gP.autoscale) {
-      yScale = d3.scaleLinear()
+      gP.yScale = d3.scaleLinear()
         .domain([gP.minPrice, gP.maxPrice])
         .range([gP.height - 10, 10]);
     } else {
-      yScale = d3.scaleLinear()
+      gP.yScale = d3.scaleLinear()
         .domain([gP.minPrice, gP.maxPrice])
         .range([gP.height - 10, 10]);
     }
 
+
     // Инициализация шкалы времени
-    let xScale: d3.ScaleTime<number, number>;
-    xScale = d3.scaleTime()
+    gP.xScale = d3.scaleTime()
       .domain([gP.minTime, gP.maxTime])
       .range([-gP.candleWide, gP.width])
-
 
 
     // Инициализация шкалы объемов
@@ -179,7 +186,7 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
 
     //Рисование ценовой шкалы
     function drawVerticalScale() {
-      let ticks = yScale.ticks();
+      let ticks = gP.yScale.ticks();
 
       priceContext.fillStyle = gP.backgroundColor;
       priceContext.fillRect(0, 0, gP.verticalScaleWidth, gP.height);
@@ -188,13 +195,13 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
       priceContext.fillStyle = "black";
       priceContext.font = '24px serif';
       ticks.forEach(i => {
-        priceContext.fillText(i, 0, yScale(i));
+        priceContext.fillText(i, 0, gP.yScale(i));
       })
     }
 
     // Рисование шкалы времени
     function drawHorizontalScale() {
-      let ticks = xScale.ticks();
+      let ticks = gP.xScale.ticks();
 
       timeContext.fillStyle = gP.backgroundColor;
       timeContext.fillRect(0, 0, gP.width, gP.horizontalScaleHeight);
@@ -216,10 +223,10 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
           text = `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`
         }
         const textWidth = timeContext.measureText(text).width;
-        timeContext.fillText(text, xScale(i) - textWidth / 2 + shadowShift, 17);
+        timeContext.fillText(text, gP.xScale(i) - textWidth / 2 + shadowShift, 17);
         // Палочки на датах
         timeContext.fillStyle = "black";
-        timeContext.fillRect(xScale(i) + shadowShift, 0, 1, 3)
+        timeContext.fillRect(gP.xScale(i) + shadowShift, 0, 1, 3)
       })
     }
 
@@ -234,15 +241,15 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
         if (parseFloat(e[1]) <= parseFloat(e[4])) {
           graphContext.fillStyle = 'green';
           // Тень
-          graphContext.fillRect(xScale(e[0]) + shadowShift, yScale(e[3]), 1, yScale(e[2]) - yScale(e[3]));
+          graphContext.fillRect(gP.xScale(e[0]) + shadowShift, gP.yScale(e[3]), 1, gP.yScale(e[2]) - gP.yScale(e[3]));
           // Свеча
-          graphContext.fillRect(xScale(e[0]) + 1, yScale(e[1]), gP.candleWide - 2, yScale(e[4]) - yScale(e[1]));
+          graphContext.fillRect(gP.xScale(e[0]) + 1, gP.yScale(e[1]), gP.candleWide - 2, gP.yScale(e[4]) - gP.yScale(e[1]));
         } else {
           graphContext.fillStyle = 'red';
           // Тень
-          graphContext.fillRect(xScale(e[0]) + shadowShift, yScale(e[3]), 1, yScale(e[2]) - yScale(e[3]));
+          graphContext.fillRect(gP.xScale(e[0]) + shadowShift, gP.yScale(e[3]), 1, gP.yScale(e[2]) - gP.yScale(e[3]));
           // Свеча
-          graphContext.fillRect(xScale(e[0]) + 1, yScale(e[1]), gP.candleWide - 2, yScale(e[4]) - yScale(e[1]));
+          graphContext.fillRect(gP.xScale(e[0]) + 1, gP.yScale(e[1]), gP.candleWide - 2, gP.yScale(e[4]) - gP.yScale(e[1]));
         }
         drawVolumes(e);
       });
@@ -250,7 +257,7 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
 
     // Рисование объемов
     function drawVolumes(e) {
-      graphContext.fillRect(xScale(e[0]) + 1, gP.height, gP.candleWide - 2, -yVolumeScale(e[5]))
+      graphContext.fillRect(gP.xScale(e[0]) + 1, gP.height, gP.candleWide - 2, -yVolumeScale(e[5]))
     }
 
     // Рисование курсора
@@ -269,7 +276,7 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
       graphContext.stroke();
 
       // Курсор с датой
-      const date = new Date(xScale.invert(gP.mouseCoords.x));
+      const date = new Date(gP.xScale.invert(gP.mouseCoords.x));
       const text = `${date.getDate().toString().padStart(2, "0")}.${date.getMonth().toString().padStart(2, "0")}.${date.getFullYear().toString().slice(2)} ${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
       const textWidth = timeContext.measureText(text).width;
       timeContext.fillStyle = "white";
@@ -285,7 +292,7 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
       priceContext.fillRect(0, gP.mouseCoords.y - 20, gP.verticalScaleWidth, 40)
       priceContext.strokeRect(0, gP.mouseCoords.y - 20, gP.verticalScaleWidth, 40)
       priceContext.fillStyle = "black";
-      priceContext.fillText(yScale.invert(gP.mouseCoords.y), 0, gP.mouseCoords.y + 7);
+      priceContext.fillText(gP.yScale.invert(gP.mouseCoords.y), 0, gP.mouseCoords.y + 7);
     }
 
     // Рисование линии последней цены
@@ -295,18 +302,18 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
       // Сама линия
       graphContext.fillStyle = "black";
       graphContext.beginPath();
-      graphContext.moveTo(0, yScale(candle[4]))
-      graphContext.lineTo(gP.width, yScale(candle[4]))
+      graphContext.moveTo(0, gP.yScale(candle[4]))
+      graphContext.lineTo(gP.width, gP.yScale(candle[4]))
       graphContext.closePath();
       graphContext.stroke();
 
       // Курсор с ценой
       priceContext.fillStyle = "white";
       priceContext.strokeStyle = "black";
-      priceContext.fillRect(0, yScale(candle[4]) - 20, gP.verticalScaleWidth, 40)
-      priceContext.strokeRect(0, yScale(candle[4]) - 20, gP.verticalScaleWidth, 40)
+      priceContext.fillRect(0, gP.yScale(candle[4]) - 20, gP.verticalScaleWidth, 40)
+      priceContext.strokeRect(0, gP.yScale(candle[4]) - 20, gP.verticalScaleWidth, 40)
       priceContext.fillStyle = "black";
-      priceContext.fillText(candle[4], 0, yScale(candle[4]) + 7);
+      priceContext.fillText(candle[4], 0, gP.yScale(candle[4]) + 7);
     }
 
     // После инициализации всего рисуем по частям
@@ -396,7 +403,7 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
     e.preventDefault();
     let gP = this.graphicProperties;
     if (!gP.candles.length) return;
-    console.log(e)
+    this.ts.placeOrder();
   }
 
   //#endregion MOUSE_GRAPHIC_EVENTS
@@ -541,7 +548,6 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
   }
 
   ngOnInit() {
-    this.connect();
     this.changeCandlesTime("1m");
     this.subbed = true;
   }
@@ -593,6 +599,6 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
   }
 
   ngOnDestroy() {
-    this.unsubscribeData(this.graphicProperties.symbol+'@kline_'+this.graphicProperties.candlesTime);
+    this.unsubscribeData(this.graphicProperties.symbol + '@kline_' + this.graphicProperties.candlesTime);
   }
 }

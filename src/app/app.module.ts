@@ -1,12 +1,16 @@
-import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-browser/animations';
-import {NgModule} from '@angular/core';
+import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { NgModule } from '@angular/core';
 
-import {AppRoutingModule} from './app-routing.module';
-import {AppComponent} from './app.component';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 
 import { MatSliderModule } from '@angular/material/slider';
-
+import { AuthService } from './shared/services/auth.service';
+import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -15,9 +19,12 @@ import { MatSliderModule } from '@angular/material/slider';
   imports: [
     NoopAnimationsModule,
     AppRoutingModule,
-    MatSliderModule
+    MatSliderModule,
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [AuthService, { provide: JWT_OPTIONS, useValue: JWT_OPTIONS }, JwtHelperService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

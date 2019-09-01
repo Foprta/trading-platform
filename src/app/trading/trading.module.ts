@@ -20,15 +20,16 @@ import { GraphicComponent } from './graphic/graphic.component';
 import { WebsocketService } from '../shared/services/websocket.service';
 import { WsHandlerService } from '../shared/services/ws-handler.service';
 import { AngularResizedEventModule } from 'angular-resize-event';
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { TradingService } from './shared/trading.service';
 
 
 const routes: Routes = [
-  { path: '', component: TradingComponent },
-  { path: 'graphic', component: GraphicComponent }
+  { path: '', component: TradingComponent }
 ];
 
 @NgModule({
-  declarations: [TradingComponent, GraphicComponent],
+  declarations: [TradingComponent, GraphicComponent, SidebarComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
@@ -48,6 +49,6 @@ const routes: Routes = [
     AngularResizedEventModule
 
   ],
-  providers: [WebsocketService, WsHandlerService]
+  providers: [WebsocketService, WsHandlerService, TradingService]
 })
 export class TradingModule { }

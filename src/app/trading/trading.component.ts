@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {FormGroup, FormBuilder} from '@angular/forms';
+import { WebsocketService } from '../shared/services/websocket.service';
 
 @Component({
   selector: 'app-trading',
@@ -7,22 +7,14 @@ import {FormGroup, FormBuilder} from '@angular/forms';
   styleUrls: ['./trading.component.scss']
 })
 export class TradingComponent implements OnInit {
-  orderForm: FormGroup;
-
-  constructor(private fb: FormBuilder) {
+  constructor(private ws: WebsocketService) {
   }
 
   log(e) {
     console.log(e)
   }
 
-  
-
   ngOnInit() {
-    this.orderForm = this.fb.group({
-      orderSide: ['buy'],
-      orderType: ['market'],
-      orderValue: [10]
-    });
+    this.ws.connect();
   }
 }

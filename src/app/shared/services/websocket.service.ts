@@ -72,7 +72,6 @@ export class WebsocketService {
   // Если есть, то посылает отписку
   public unsubscribeData(d) {
     const subscribtion = d.data.symbol + "@" + d.data.type + "_" + d.data.candlesTime;
-    console.log(this.subscriptions);
     if (this.subscriptions[subscribtion] > 1) {
       this.subscriptions[subscribtion]--;
     } else if (this.subscriptions[subscribtion] == 1) {
@@ -83,12 +82,35 @@ export class WebsocketService {
     }
   }
 
-  // Одноразовое получение инфы
+  // Одноразовое получение свечей
   public getData(d) {
     const subscribtion = d.data.symbol + "@" + d.data.type + "_" + d.data.candlesTime;
     if (!this.wsHandler.dataStorage.candlesticks[subscribtion]) {
       this.wsHandler.dataStorage.candlesticks[subscribtion] = new Subject<object>();
     }
     this.socket$.next(d);
+  }
+
+  // Послать заявку на позицию
+  public sendOrder(d) {
+    const subscribtion = d.data.symbol + "@orders";
+    if (!this.wsHandler.dataStorage.candlesticks[subscribtion]) {
+      this.wsHandler.dataStorage.candlesticks[subscribtion] = new Subject<object>();
+    }
+    this.socket$.next(d);
+  }
+
+  // Подписка на баланс
+  public getBalance() {
+    const data = {
+      type: "balance",
+      data: {
+        type: "balance"
+      }
+    }
+    if (!this.wsHandler.dataStorage.balance) {
+      this.wsHandler.dataStorage.balance = new Subject<object>();
+    }
+    this.socket$.next(data)
   }
 }

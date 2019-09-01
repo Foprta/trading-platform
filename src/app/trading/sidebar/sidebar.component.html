@@ -1,0 +1,21 @@
+<div class="trading-form">
+
+  <form [formGroup]="orderForm">
+    <mat-button-toggle-group class="selector-group" formControlName="orderSide">
+      <mat-button-toggle value="buy">BUY</mat-button-toggle>
+      <mat-button-toggle value="sell">SELL</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <mat-button-toggle-group class="selector-group" formControlName="orderType">
+      <mat-button-toggle value="market">MRKT</mat-button-toggle>
+      <mat-button-toggle value="limit">LMT</mat-button-toggle>
+      <mat-button-toggle value="profit">T-P/S-L</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <mat-slider (input)="changeSlider($event)" class="selector-group" formControlName="orderValue" [min]="10" [max]="100" [step]="1">
+    </mat-slider>
+  </form>
+  Place {{ orderForm.value.orderSide == "buy" ? "USD" : "BTC" }}: {{orderAmount}} <br>
+  BTC: {{symbol}} <br>
+  USD: {{money}}
+</div>
