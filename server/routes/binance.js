@@ -3,12 +3,12 @@ const Connection = require("../models/Connection");
 
 connections = [];
 
-module.exports.create = function (ws) {
+module.exports.create = function create(ws) {
   let client = new Binance("6BrCAotfakqRF0sQd9EilaqgLfjfJrhHaeIhiCyy3ybWbiw2nSjTaWkZWkqMAwHs", "Mwq1unpyjg4SgvAsb57LyRzMLLN0Br09sCaMIRKN4Ac72matRVery4LtFbo1oJnn").connection;
   connections.push(new Connection(ws, client));
 }
 
-module.exports.close = function (ws) {
+module.exports.close = function close(ws) {
   const index = connections.findIndex((e) => e.ws === ws);
 
   try {
@@ -24,10 +24,9 @@ module.exports.close = function (ws) {
   }
 }
 
-module.exports.unsub = function (ws, symbol, type, time) {
+module.exports.unsub = function unsub(ws, symbol, type, time) {
   const index = connections.findIndex((e) => e.ws === ws);
   try {
-    console.log(symbol + "@" + type + "_" + time)
     connections[index].binance.websockets.terminate((symbol + "@" + type + "_" + time).toLowerCase());
   }
   catch (e) {
@@ -35,7 +34,7 @@ module.exports.unsub = function (ws, symbol, type, time) {
   }
 }
 
-module.exports.candlesticks = function (ws, symbol, time, endTime) {
+module.exports.candlesticks = function candlesticks(ws, symbol, time, endTime) {
   let client = connections.find((e) => e.ws === ws);
 
   try {
@@ -57,14 +56,14 @@ module.exports.candlesticks = function (ws, symbol, time, endTime) {
 }
 
 
-module.exports.balance = function (ws) {
+module.exports.balance = function balance(ws) {
   let client = connections.find((e) => e.ws === ws);
 
   try {
     client.binance.useServerTime(function () {
       client.binance.balance((error, balances) => {
         if (error) {
-          console.log(error.body);
+          console.error(error.body);
           this.balance(ws);
         } else {
           try {
@@ -81,7 +80,7 @@ module.exports.balance = function (ws) {
 
 }
 
-module.exports.candlestick = function (ws, symbol, time) {
+module.exports.candlestick = function candlestick(ws, symbol, time) {
   let client = connections.find((e) => e.ws === ws);
 
   try {
@@ -99,7 +98,7 @@ module.exports.candlestick = function (ws, symbol, time) {
 
 }
 
-module.exports.trades = function (ws, symbol) {
+module.exports.trades = function trades(ws, symbol) {
   let client = connections.find((e) => e.ws === ws);
 
   client.binance.websockets.trades(symbol, (trades) => {

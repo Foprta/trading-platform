@@ -21,7 +21,7 @@
         (resized)="graphicResized($event)">
         <canvas></canvas>
     </div>
-    <div class="price-scale" id="price-{{number}}" (mousedown)=onMouseDownPrice($event)>
+    <div class="price-scale" id="price-{{number}}" (dblclick)="onMouseDoubleClickPrice($event)" (mousedown)=onMouseDownPrice($event)>
         <canvas></canvas>
     </div>
     <div class="time-scale" id="time-{{number}}" (mousedown)=onMouseDownTime($event)>

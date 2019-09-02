@@ -1,3 +1,10 @@
-const mongoose = require("mongoose");
+const mongo = require("../controllers/mongo")
 
-mongoose.connect("mongodb://localhost:27017/trading-platform", { useNewUrlParser: true })
+module.exports.getOrders = function(ws) {
+    mongo.getOrders(ws);
+}
+
+module.exports.updateOrder = function(data) {
+    console.log(data);
+    mongo.updateOrder(data.id, data.price);
+}

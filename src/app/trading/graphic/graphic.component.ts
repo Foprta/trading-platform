@@ -3,6 +3,7 @@ import { Message, WebsocketService } from '../../shared/services/websocket.servi
 import * as d3 from 'd3';
 import { WsHandlerService } from '../../shared/services/ws-handler.service';
 import { TradingService } from '../shared/trading.service';
+import { geoPath } from 'd3';
 
 @Component({
   selector: 'app-graphic',
@@ -58,6 +59,7 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
     realCandleWide: 0,
     candleWide: 0,
     candles: [],
+    orders: [],
     mouseCoords: { x: -1, y: -1 },
     autoscale: true,
     mouseOver: false,
@@ -107,6 +109,17 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
     this.ws.getData(msg);
   }
 
+  updateOrder(i, price) {
+    const data = {
+      type: "updateOrder",
+      data: {
+        id: this.graphicProperties.orders[i]._id,
+        price: price
+      }
+    }
+    this.ws.updateOrder(data)
+  }
+
   //#endregion WS_EVENTS
 
   log(e) {
@@ -143,14 +156,14 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
     gP.candles.forEach(e => {
       if (e[0] < gP.minTime || e[0] > gP.maxTime) return;
       if (gP.maxVolume < e[5]) {
-        gP.maxVolume = parseInt(e[5]);
+        gP.maxVolume = parseFloat(e[5]);
       }
       if (gP.autoscale) {
         if (gP.maxPrice < e[2]) {
-          gP.maxPrice = parseInt(e[2]);
+          gP.maxPrice = parseFloat(e[2]);
         }
         if (gP.minPrice > e[3]) {
-          gP.minPrice = parseInt(e[3]);
+          gP.minPrice = parseFloat(e[3]);
         }
       }
     });
@@ -239,25 +252,30 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
         // [0] time, [1] open, [2] high, [3] low, [4] close, [5] volume, 
         // [6] closeTime, [7] assetVolume, [8] trades, [9] buyBaseVolume, [10] buyAssetVolume, [11] ignored
         if (parseFloat(e[1]) <= parseFloat(e[4])) {
+          graphContext.fillStyle = 'lightgreen';
+          drawVolumes(e);
           graphContext.fillStyle = 'green';
           // Тень
           graphContext.fillRect(gP.xScale(e[0]) + shadowShift, gP.yScale(e[3]), 1, gP.yScale(e[2]) - gP.yScale(e[3]));
           // Свеча
           graphContext.fillRect(gP.xScale(e[0]) + 1, gP.yScale(e[1]), gP.candleWide - 2, gP.yScale(e[4]) - gP.yScale(e[1]));
+
         } else {
+          graphContext.fillStyle = 'orange';
+          drawVolumes(e);
           graphContext.fillStyle = 'red';
           // Тень
           graphContext.fillRect(gP.xScale(e[0]) + shadowShift, gP.yScale(e[3]), 1, gP.yScale(e[2]) - gP.yScale(e[3]));
           // Свеча
           graphContext.fillRect(gP.xScale(e[0]) + 1, gP.yScale(e[1]), gP.candleWide - 2, gP.yScale(e[4]) - gP.yScale(e[1]));
         }
-        drawVolumes(e);
+
       });
     }
 
     // Рисование объемов
     function drawVolumes(e) {
-      graphContext.fillRect(gP.xScale(e[0]) + 1, gP.height, gP.candleWide - 2, -yVolumeScale(e[5]))
+      graphContext.fillRect(gP.xScale(e[0]) + 1, gP.height, gP.candleWide, -yVolumeScale(e[5]))
     }
 
     // Рисование курсора
@@ -316,11 +334,32 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
       priceContext.fillText(candle[4], 0, gP.yScale(candle[4]) + 7);
     }
 
+    // Рисование сделок
+    function drawOrders() {
+      gP.orders.forEach(e => {
+        graphContext.fillStyle = "red";
+        graphContext.beginPath();
+        graphContext.moveTo(0, gP.yScale(e.price))
+        graphContext.lineTo(gP.width, gP.yScale(e.price))
+        graphContext.closePath();
+        graphContext.stroke();
+  
+        // Курсор с ценой
+        priceContext.fillStyle = "white";
+        priceContext.strokeStyle = "red";
+        priceContext.fillRect(0, gP.yScale(e.price) - 20, gP.verticalScaleWidth, 40)
+        priceContext.strokeRect(0, gP.yScale(e.price) - 20, gP.verticalScaleWidth, 40)
+        priceContext.fillStyle = "red";
+        priceContext.fillText(e.price, 0, gP.yScale(e.price) + 7);
+      })
+    }
+
     // После инициализации всего рисуем по частям
     drawCandles();
     drawVerticalScale();
     drawHorizontalScale();
     drawLastPrice();
+    drawOrders();
     if (gP.mouseOver) drawMouseCross();
   }
 
@@ -403,12 +442,42 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
     e.preventDefault();
     let gP = this.graphicProperties;
     if (!gP.candles.length) return;
-    this.ts.placeOrder();
+    this.ts.placeOrder(gP.yScale.invert(e.offsetY));
   }
 
   //#endregion MOUSE_GRAPHIC_EVENTS
 
   //#region MOUSE_PRICE_EVENTS
+
+  onMouseDoubleClickPrice(e) {
+    e.preventDefault();
+    let gP = this.graphicProperties;
+
+    let currY = e.offsetY;
+
+    gP.orders.forEach((d, i) => {
+      let height = gP.yScale(d.price);
+      if (height > currY - 20 && height < currY + 20) {
+        let mover = (event) => {
+          event.preventDefault();
+          currY = event.offsetY;
+          gP.orders[i].price = gP.yScale.invert(currY);
+          this.redraw();
+        }
+    
+        let upper = (event) => {
+          event.preventDefault();
+          this.updateOrder(i, gP.yScale.invert(event.offsetY));
+          document.removeEventListener("mousemove", mover)
+          document.removeEventListener("mouseup", upper)
+        }
+    
+        document.addEventListener("mousemove", mover);
+    
+        document.addEventListener("mouseup", upper)
+      }
+    })
+  }
 
   onMouseDownPrice(e) {
     if (e.which != 1) {
@@ -498,7 +567,7 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
     this.subscribeData({ symbol: gP.symbol, type: "kline", candlesTime: e })
 
     // Подписка на получение данных с сервака
-    this.candles = this.wsh.dataStorage.candlesticks[gP.symbol + "@candlesticks_" + gP.candlesTime].subscribe((data) => {
+    this.candles = this.wsh.dataStorage.candlesticks$[gP.symbol + "@candlesticks_" + gP.candlesTime].subscribe((data) => {
       // Получение множества свечек
       this.graphicProperties.loadingCandles = false;
       this.graphicProperties.minLoadedTime = data[0][0];
@@ -510,7 +579,7 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
 
     // Получение последней свечки
     // data['k'] {t, o, h, l, c, v}
-    this.kline = this.wsh.dataStorage.kline[gP.symbol + "@kline_" + gP.candlesTime].subscribe((data) => {
+    this.kline = this.wsh.dataStorage.kline$[gP.symbol + "@kline_" + gP.candlesTime].subscribe((data) => {
       if (this.graphicProperties.candles.length) {
         try {
           if (this.graphicProperties.candles[this.graphicProperties.candles.length - 1][0] == data['k'].t) {
@@ -530,6 +599,10 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
       }
     });
 
+    this.wsh.dataStorage.orders$.subscribe(d => {
+      gP.orders = d;
+    })
+
     this.changeCandlesWidth();
   }
 
@@ -548,6 +621,10 @@ export class GraphicComponent implements OnInit, OnDestroy, AfterContentInit, Af
   }
 
   ngOnInit() {
+    this.ts.symbol$.subscribe(d => {
+      this.graphicProperties.symbol = d;
+      this.changeCandlesTime(this.graphicProperties.candlesTime)
+    })
     this.changeCandlesTime("1m");
     this.subbed = true;
   }

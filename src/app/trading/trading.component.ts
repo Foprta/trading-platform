@@ -16,5 +16,7 @@ export class TradingComponent implements OnInit {
 
   ngOnInit() {
     this.ws.connect();
+    this.ws.getBalance();
+    this.ws.getOrders();
   }
 }

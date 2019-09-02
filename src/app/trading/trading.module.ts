@@ -14,6 +14,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatSelectModule } from '@angular/material/select';
 
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { GraphicComponent } from './graphic/graphic.component';
@@ -43,6 +44,7 @@ const routes: Routes = [
     MatIconModule,
     MatSidenavModule,
     MatSliderModule,
+    MatSelectModule,
     MatButtonToggleModule,
     FormsModule,
     ReactiveFormsModule,

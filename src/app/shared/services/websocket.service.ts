@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { webSocket } from 'rxjs/webSocket';
 import { WsHandlerService } from './ws-handler.service';
 import { Subject } from 'rxjs';
@@ -14,7 +14,7 @@ export class Message {
 @Injectable({
   providedIn: 'root'
 })
-export class WebsocketService {
+export class WebsocketService implements OnInit{
   private subscriptions: object = {};
   private socket$: any = undefined;
   private pingTimeout;
@@ -62,7 +62,7 @@ export class WebsocketService {
     if (this.subscriptions[subscribtion]) {
       this.subscriptions[subscribtion]++;
     } else {
-      this.wsHandler.dataStorage.kline[subscribtion] = new Subject<object>();
+      this.wsHandler.dataStorage.kline$[subscribtion] = new Subject<object>();
       this.subscriptions[subscribtion] = 1;
       this.socket$.next(d);
     }
@@ -85,17 +85,34 @@ export class WebsocketService {
   // Одноразовое получение свечей
   public getData(d) {
     const subscribtion = d.data.symbol + "@" + d.data.type + "_" + d.data.candlesTime;
-    if (!this.wsHandler.dataStorage.candlesticks[subscribtion]) {
-      this.wsHandler.dataStorage.candlesticks[subscribtion] = new Subject<object>();
+    if (!this.wsHandler.dataStorage.candlesticks$[subscribtion]) {
+      this.wsHandler.dataStorage.candlesticks$[subscribtion] = new Subject<object>();
     }
+    this.socket$.next(d);
+  }
+
+  public getOrders() {
+    const data = {
+      type: "orders",
+      data: {
+        type: "orders"
+      }
+    }
+    if (!this.wsHandler.dataStorage.orders$) {
+      this.wsHandler.dataStorage.orders$ = new Subject<object>();
+    }
+    this.socket$.next(data);
+  }
+
+  public updateOrder(d) {
+    console.log(d)
     this.socket$.next(d);
   }
 
   // Послать заявку на позицию
   public sendOrder(d) {
-    const subscribtion = d.data.symbol + "@orders";
-    if (!this.wsHandler.dataStorage.candlesticks[subscribtion]) {
-      this.wsHandler.dataStorage.candlesticks[subscribtion] = new Subject<object>();
+    if (!this.wsHandler.dataStorage.orders$) {
+      this.wsHandler.dataStorage.orders$ = new Subject<object>();
     }
     this.socket$.next(d);
   }
@@ -108,9 +125,12 @@ export class WebsocketService {
         type: "balance"
       }
     }
-    if (!this.wsHandler.dataStorage.balance) {
-      this.wsHandler.dataStorage.balance = new Subject<object>();
+    if (!this.wsHandler.dataStorage.balances$) {
+      this.wsHandler.dataStorage.balances$ = new Subject<object>();
     }
     this.socket$.next(data)
+  }
+
+  ngOnInit() {
   }
 }

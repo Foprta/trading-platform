@@ -1,6 +1,7 @@
 const binance = require("../routes/binance");
+const mongo = require("../routes/mongo")
 
-module.exports.subscribe = function(ws, data) {
+module.exports.subscribe = function subscribe(ws, data) {
   const type = data.type;
   switch (type) {
     case "trades": {
@@ -14,11 +15,11 @@ module.exports.subscribe = function(ws, data) {
   }
 }
 
-module.exports.unsubscribe = function(ws, data) {
+module.exports.unsubscribe = function unsubscribe(ws, data) {
   binance.unsub(ws, data.symbol, data.type, data.candlesTime);
 }
 
-module.exports.getData = function(ws, data) {
+module.exports.getData = function getData(ws, data) {
   const type = data.type;
   switch (type) {
     case "candlesticks": {
@@ -29,19 +30,27 @@ module.exports.getData = function(ws, data) {
       binance.balance(ws);
       break;
     }
+    case "orders": {
+      mongo.getOrders(ws);
+      break;
+    }
   }
 }
 
-module.exports.makeConnection = function(ws) {
+module.exports.order = function order(ws, data) {
+  console.log(data);
+}
+
+module.exports.makeConnection = function makeConnection(ws) {
   binance.create(ws);
 }
 
-module.exports.closeConnection = function(ws) {
+module.exports.closeConnection = function closeConnection(ws) {
   binance.close(ws);
 }
 
 // Обработка полученных сообщений
-module.exports.handleRequest = function(ws, data) {
+module.exports.handleRequest = function handleRequest(ws, data) {
   data = JSON.parse(data);
   const message = data.data;
   switch (data.type) {
@@ -59,6 +68,15 @@ module.exports.handleRequest = function(ws, data) {
     }
     case "balance": {
       this.getData(ws, message);
+      break;
+    }
+    case "orders": {
+      this.getData(ws, message);
+      break;
+    }
+    case "updateOrder": {
+      console.log("update")
+      mongo.updateOrder(message);
       break;
     }
   }

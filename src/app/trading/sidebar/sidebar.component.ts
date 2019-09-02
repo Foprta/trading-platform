@@ -38,16 +38,17 @@ export class SidebarComponent implements OnInit {
 
   ngOnInit() {
     this.orderForm = this.fb.group({
+      symbol: ['BTC'],
+      base: ['USDT'],
       orderSide: ['buy'],
       orderType: ['market'],
       orderValue: [10]
     });
 
+    this.ts.updateState(this.orderForm.value);
     this.orderForm.valueChanges.subscribe((e) => this.onChange(e))
 
-    this.ts.getBalance();
-
-    this.wsh.dataStorage.balance.subscribe((d) => {
+    this.wsh.dataStorage.balances$.subscribe((d) => {
       this.symbol = d.ETH.available;
       this.money = d.USDT.available;
       this.changeSlider({value: this.orderForm.value.orderValue});

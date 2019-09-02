@@ -12,10 +12,31 @@
       <mat-button-toggle value="profit">T-P/S-L</mat-button-toggle>
     </mat-button-toggle-group>
 
-    <mat-slider (input)="changeSlider($event)" class="selector-group" formControlName="orderValue" [min]="10" [max]="100" [step]="1">
+    <mat-slider (input)="changeSlider($event)" class="selector-group" formControlName="orderValue" [min]="10"
+      [max]="100" [step]="1">
     </mat-slider>
+
+    <br>
+    <mat-select formControlName="symbol">
+      <mat-option value='BTC'>
+        BTC
+      </mat-option>
+      <mat-option value='ETH'>
+        ETH
+      </mat-option>
+    </mat-select>
+    <br>
+    <mat-select formControlName="base">
+      <mat-option value='USDT'>
+        USDT
+      </mat-option>
+      <mat-option value='USDC'>
+        USDC
+      </mat-option>
+    </mat-select>
+
   </form>
-  Place {{ orderForm.value.orderSide == "buy" ? "USD" : "BTC" }}: {{orderAmount}} <br>
+  Place {{ orderForm.value.orderSide == "buy" ? "USDT" : "BTC" }}: {{orderAmount}} <br>
   BTC: {{symbol}} <br>
-  USD: {{money}}
+  USDT: {{money}}
 </div>
