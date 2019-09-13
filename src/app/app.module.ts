@@ -8,15 +8,11 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 
 import { MatSliderModule } from '@angular/material/slider';
-import { AuthService } from './shared/services/auth.service';
-import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
 import { HttpClientModule } from '@angular/common/http';
-import { LoginFormComponent } from './core/login-form/login-form.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginFormComponent,
   ],
   imports: [
     NoopAnimationsModule,
@@ -26,7 +22,7 @@ import { LoginFormComponent } from './core/login-form/login-form.component';
     ReactiveFormsModule,
     HttpClientModule
   ],
-  providers: [AuthService, { provide: JWT_OPTIONS, useValue: JWT_OPTIONS }, JwtHelperService],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule {
