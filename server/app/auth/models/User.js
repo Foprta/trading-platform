@@ -29,7 +29,7 @@ userSchema.methods.generateJWT = function() {
       _id: this._id,
       username: this.username,
       exp: parseInt(expiry.getTime() / 1000),
-    }, "MY_SECRET");
+    }, "mine_jwt_secret");
 }
 
 module.exports = mongoose.model('User', userSchema, "users");
