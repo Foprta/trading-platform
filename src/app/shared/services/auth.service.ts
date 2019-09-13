@@ -16,15 +16,15 @@ export class AuthService {
   }
 
   public login(req) {
-    let password = [];
+    // let password = [];
 
-    for (let i = 0; i < req.password.length; i++) {
-      password.push((req.password.charCodeAt(i)+123)*(i+2)+86574);
-    }
+    // for (let i = 0; i < req.password.length; i++) {
+    //   password.push((req.password.charCodeAt(i)+123)*(i+2)+86574);
+    // }
 
-    req.password = password;
+    // req.password = password;
 
-    this.http.post(window.location.origin + "/auth/login", req).subscribe(value => {
+    this.http.post(window.location.origin + "/app/auth/login", req).subscribe(value => {
       if (value['token']) {
         sessionStorage.setItem('token', value['token']);
       }
