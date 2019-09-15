@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "rm -rf dist & concurrently -c \"red,green\" -n \"ANGULAR,SERVER\" \"ng build --watch\" \"nodemon server/index.js\"",
+    "start": "run-script-os",
+    "start:linux": "rm -rf dist & concurrently -c \"red,green\" -n \"ANGULAR,SERVER\" \"ng build --watch\" \"nodemon server/index.js\"",
+    "start:win32": "rmdir /s /q dist & concurrently -c \"red,green\" -n \"ANGULAR,SERVER\" \"ng build --watch\" \"nodemon server/index.js\"",
     "build": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
@@ -37,7 +39,7 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "rxjs": "~6.3.3",
-    "tslib": "^1.9.0",
+    "tslib": "^1.10.0",
     "ws": "^6.2.1",
     "zone.js": "~0.8.26"
   },
@@ -60,6 +62,7 @@
     "karma-jasmine-html-reporter": "^0.2.2",
     "nodemon": "^1.18.10",
     "protractor": "~5.4.0",
+    "run-script-os": "^1.0.7",
     "ts-node": "~7.0.0",
     "tslint": "~5.11.0",
     "typescript": "~3.2.2"

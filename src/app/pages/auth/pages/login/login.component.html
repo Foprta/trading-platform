@@ -1,0 +1,13 @@
+<form [formGroup]="_authForm" (submit)="_onSubmit()">
+  <mat-form-field>
+    <input matInput placeholder="Username"  [formControlName]="_controls.LOGIN.name" type="text">
+    <mat-error>Username required!</mat-error>
+  </mat-form-field>
+  <br>
+  <mat-form-field>
+    <input matInput placeholder="Password" [formControlName]="_controls.PASSWORD.name" type="text">
+    <mat-error>Password required!</mat-error>
+  </mat-form-field>
+  <br>
+  <button type="submit">Login</button>
+</form>

@@ -1,5 +1,7 @@
 import 'hammerjs';
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from './services/auth/auth.service';
+
 
 @Component({
   selector: 'app-root',
@@ -7,7 +9,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  constructor() {
+  constructor(private _auth: AuthService) {
   }
 
   ngOnInit() {

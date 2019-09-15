@@ -7,17 +7,17 @@ require('./mongoose/index') // Подключение к БД
 
 const app = express();
 
-const distDir="../dist/trading-platform"
+const distDir="../dist/trading-platform";
 
-app.use(express.static(path.join(__dirname, distDir)))
+app.use(express.static(path.join(__dirname, distDir)));
 
 app.use(passport.initialize());
 
 app.use(bodyParser.json());
 
-app.use('/app', appRoutes)
+app.use('/app', appRoutes);
 
-app.use('/secured', passport.authenticate('jwt', {session: false}), (req, res) => res.send("JOPA SOBAKI"))
+app.use('/secured', passport.authenticate('jwt', {session: false}), (req, res) => res.send("JOPA SOBAKI"));
 
 app.all('*', (req, res) => {
     res.status(200).sendFile(path.join(__dirname, distDir) + "/index.html");

@@ -6,23 +6,31 @@ import { AppComponent } from './app.component';
 
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
-
-import { MatSliderModule } from '@angular/material/slider';
-import { HttpClientModule } from '@angular/common/http';
+import { BackendService } from './services/backend/backend.service';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { AuthGuard } from './guards/auth/auth.guard';
 
 @NgModule({
   declarations: [
     AppComponent,
   ],
   imports: [
-    NoopAnimationsModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
-    MatSliderModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [
+    BackendService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
+    AuthGuard
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
