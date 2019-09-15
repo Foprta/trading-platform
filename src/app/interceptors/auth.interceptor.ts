@@ -12,7 +12,7 @@ export class AuthInterceptor implements HttpInterceptor {
     ): Observable<HttpEvent<any>> {
         if (request.url.includes('/secured')) {
             request.clone({
-                headers: request.headers.set('Authorization', 'Bearer token')
+                headers: request.headers.set('Authorization', `Bearer ${localStorage.getItem('access_token')}`)
             })
         }
         return next.handle(request)
