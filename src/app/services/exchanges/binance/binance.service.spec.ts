@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { WebsocketService } from './websocket.service';
+import { BinanceService } from './binance.service';
 
-describe('WebsocketService', () => {
+describe('BinanceService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: WebsocketService = TestBed.get(WebsocketService);
+    const service: BinanceService = TestBed.get(BinanceService);
     expect(service).toBeTruthy();
   });
 });

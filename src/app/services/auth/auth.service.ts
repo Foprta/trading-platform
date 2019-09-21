@@ -7,6 +7,7 @@ import { INotification } from '../notifications/interfaces/notification.interfac
 import { BehaviorSubject } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { Router } from '@angular/router';
+import { URLS_CONFIG } from '../../configs/urls.config';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +33,7 @@ export class AuthService {
 
   public login(user): void {
     this._isLoadingActive$.next(true);
-    this._backend.post("http://localhost:3000/app/auth/login", user).subscribe(
+    this._backend.post(URLS_CONFIG.AUTH_URL.LOGIN, user).subscribe(
       (data: IResponse<string>) => {
         localStorage.setItem('access_token', data.result);
         this._router.navigate(['trading']);
