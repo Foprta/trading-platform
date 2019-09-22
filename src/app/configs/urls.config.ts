@@ -37,7 +37,7 @@ export class URLS_CONFIG {
         const BASE_AUTH_URL: string = `${URLS_CONFIG.SERVER_SECURED_URL}/binance`
 
         return {
-            CANDLES: `${BASE_AUTH_URL}/candles`,
+            CANDLES: `${BASE_AUTH_URL}/candlesticks`,
         }
     }
 }

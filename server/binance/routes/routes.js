@@ -1,7 +1,6 @@
 const router = require('express').Router()
 const controller = require('../controllers/data')
 const connection = require('../../models/Connection')
-
 router.use('*', createBinanceConnection);
 
 async function createBinanceConnection(req, res) {
@@ -10,8 +9,9 @@ async function createBinanceConnection(req, res) {
     else req.next('Cannot connect to Binance')
 }
 
-router.post('/candles', (req, res) => {
-    controller.prevDay(res, 'bnb')
+router.post('/candlesticks', (req, res) => {
+    const options = new CandlesticksOptions()
+    controller.candlesticks(res, options)
 })
 
 module.exports = router;

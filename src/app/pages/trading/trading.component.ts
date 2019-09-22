@@ -27,8 +27,12 @@ export class TradingComponent implements OnInit {
     //   console.log(data)
     // });
 
-    this._binanceService.getCandles('btcusdt', '1m').subscribe((data) => console.log(data))
+    //this._binanceService.getCandles('btcusdt', '1m').subscribe((data) => console.log(data))
 
+  }
+
+  trade(event) {
+    console.log(event)
   }
 
 }
