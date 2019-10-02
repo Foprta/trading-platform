@@ -1,5 +1,5 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
 import {
   MatAutocompleteModule,
   MatButtonModule,
@@ -30,8 +30,9 @@ import {
   MatTooltipModule,
   MatButtonToggleModule,
   MatBadgeModule,
-  MatMenuModule,
-} from '@angular/material';
+  MatMenuModule
+} from "@angular/material";
+import { ProgressComponent } from "./dumb/progress/progress.component";
 
 const MAT_MODULES = [
   MatCardModule,
@@ -63,16 +64,12 @@ const MAT_MODULES = [
   MatChipsModule,
   MatButtonToggleModule,
   MatBadgeModule,
-  MatMenuModule,
+  MatMenuModule
 ];
 
 @NgModule({
-  declarations: [],
-  exports: [
-    ...MAT_MODULES,
-  ],
-  imports: [
-    CommonModule
-  ]
+  declarations: [ProgressComponent],
+  exports: [...MAT_MODULES, ProgressComponent],
+  imports: [CommonModule, ...MAT_MODULES]
 })
-export class ComponentsModule { }
+export class ComponentsModule {}

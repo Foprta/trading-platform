@@ -1,3 +1,30 @@
-<canvas id='drawing' #drawing>
-
-</canvas>
+<!-- <button (click)="switchAutoscale()">Autoscale {{graphicProperties.autoscale ? "On" : "Off"}}</button>
+<select (change)="changeCandlesTime($event.target.value)">
+    <option value="1m">1m</option>
+    <option value="3m">3m</option>
+    <option value="5m">5m</option>
+    <option value="15m">15m</option>
+    <option value="30m">30m</option>
+    <option value="1h">1h</option>
+    <option value="2h">2h</option>
+    <option value="4h">4h</option>
+    <option value="6h">6h</option>
+    <option value="8h">8h</option>
+    <option value="12h">12h</option>
+    <option value="1d">1d</option>
+    <option value="3d">3d</option>
+    <option value="1w">1w</option>
+</select> -->
+<div class="graph-block">
+  <app-progress *ngIf="loading"></app-progress>
+  <div class="graphic" (resized)="resizeEvent($event)">
+    <canvas width="0" height="0" #graphic></canvas>
+  </div>
+  <div class="price-scale">
+    <canvas width="80" height="0" #price></canvas>
+  </div>
+  <div class="time-scale">
+    <canvas width="0" height="20" #time></canvas>
+  </div>
+  <div class="settings"></div>
+</div>

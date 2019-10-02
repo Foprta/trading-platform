@@ -56,7 +56,14 @@ export class BinanceService {
     return this._findSubscription('trade', symbol) || this._createSubscription('trade', symbol);
   }
 
-  getCandles(symbol, time) {
-    return this._backendService.post(URLS_CONFIG.BINANCE_URL.CANDLES, {symbol: symbol, time: time})
+  getCandles(symbol: string, time: string, limit?: string, endTime?: string, startTime?: string) {
+    const options = {
+      symbol: symbol,
+      time: time,
+      limit: limit || undefined,
+      endTime: endTime || undefined,
+      startTime: startTime || undefined,
+    }
+    return this._backendService.post(URLS_CONFIG.BINANCE_URL.CANDLES, options)
   }
 }

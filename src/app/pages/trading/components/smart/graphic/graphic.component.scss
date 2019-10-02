@@ -1,7 +1,51 @@
-#drawing {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+$bck-color: black;
+$border: 1px solid $bck-color;
+
+canvas {
+    display: block;
+}
+
+.graph-block {
+    $graph-width: 400px;
+    $graph-height: 400px;
+    $price-width: 80px;
+    $time-height: 20px;
+    overflow: hidden;
+    resize: both;
+    background: $bck-color;
+    border: $border;
+    display: grid;
+    grid-gap: 1px;
+    grid-template-areas:
+        "graphic price-scale"
+        "time-scale settings";
+    grid-template-rows: minmax($graph-height, 100%) $time-height;
+    grid-template-columns: minmax($graph-width, 100%) $price-width;
+    min-width: $price-width + $graph-width;
+    min-height: $time-height + $graph-height;
+    height: auto;
+    position: relative;
+
+    div {
+        background-color: white;
+    }
+
+    .price-scale {
+        grid-area: price-scale;
+        cursor: ns-resize;
+    }
+
+    .graphic {
+        grid-area: graphic;
+        cursor: crosshair;
+    }
+
+    .time-scale {
+        grid-area: time-scale;
+        cursor: ew-resize;
+    }
+
+    .settings {
+        grid-area: settings;
+    }
 }

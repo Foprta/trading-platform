@@ -17,7 +17,7 @@ export class BackendService {
       .pipe(
         map((result: IResponse<T>) => result),
         take(1),
-        delay(2000)
+        shareReplay()
       );
   }
 
@@ -26,6 +26,7 @@ export class BackendService {
       .get(`${url}`)
       .pipe(
         map((result: IResponse<T>) => result),
+        take(1),
         shareReplay()
       );
   }
