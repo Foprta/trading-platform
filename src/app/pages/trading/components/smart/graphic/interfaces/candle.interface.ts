@@ -1,8 +1,8 @@
 export interface ICandle {
     time: number,
-    open: string,
-    close: string,
-    high: string,
-    low: string,
-    volume: string
+    open: number,
+    close: number,
+    high: number,
+    low: number,
+    volume: number
 }

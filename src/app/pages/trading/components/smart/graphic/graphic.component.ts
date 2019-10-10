@@ -13,6 +13,8 @@ import { ICandle } from "./interfaces/candle.interface";
 import { PriceCanvas } from "./classes/price-canvas.class";
 import { TimeCanvas } from "./classes/time-canvas.class";
 import { GraphicCanvas } from "./classes/graphic-canvas.class";
+import { fromEvent } from "rxjs";
+import { skipUntil, takeUntil, repeat } from "rxjs/operators";
 
 @Component({
   selector: "app-graphic",
@@ -35,10 +37,26 @@ export class GraphicComponent implements OnInit, AfterViewInit {
 
   loading: boolean = true;
   candles: Record<string, ICandle> = {};
+  minTime = Date.now().valueOf();
+  maxTime = 0;
+  minPrice = 10000000;
+  maxPrice = 0;
+
+  autoscale: boolean = false;
+
+  prevOffsetX: number = 0;
+  prevOffsetY: number = 0;
 
   constructor(private _binanceSevice: BinanceService) {}
 
+  rescale() {
+    this.graphicCanvas.setXScale(this.minTime, this.maxTime);
+    this.graphicCanvas.setYScale(this.minPrice, this.maxPrice);
+  }
+
   redraw() {
+    this.graphicCanvas.drawBackground();
+    this.rescale();
     Object.keys(this.candles).forEach(element => {
       this.graphicCanvas.drawCandleBody(this.candles[element]);
     });
@@ -54,13 +72,26 @@ export class GraphicComponent implements OnInit, AfterViewInit {
     candles.forEach(e => {
       this.candles[e[0]] = {
         time: e[0],
-        open: e[1],
-        high: e[2],
-        low: e[3],
-        close: e[4],
-        volume: e[5]
+        open: parseFloat(e[1]),
+        high: parseFloat(e[2]),
+        low: parseFloat(e[3]),
+        close: parseFloat(e[4]),
+        volume: parseFloat(e[5])
       };
+
+      this.updatePriceWindow(this.candles[e[0]]);
+      this.updateTimeWindow(this.candles[e[0]]);
     });
+  }
+
+  updateTimeWindow(candle: ICandle) {
+    this.minTime = Math.min(this.minTime, candle.time);
+    this.maxTime = Math.max(this.maxTime, candle.time);
+  }
+
+  updatePriceWindow(candle: ICandle) {
+    this.minPrice = Math.min(this.minPrice, candle.low);
+    this.maxPrice = Math.max(this.maxPrice, candle.high);
   }
 
   resizeEvent(event) {
@@ -68,7 +99,7 @@ export class GraphicComponent implements OnInit, AfterViewInit {
     this.graphicERef.nativeElement.height = event.newHeight;
     this.timeERef.nativeElement.width = event.newWidth;
     this.priceERef.nativeElement.height = event.newHeight;
-    this.graphicCanvas.rescaleX(0, 300);
+    this.redraw();
   }
 
   loadCandles(limit?: string, endTime?: string, startTime?: string) {
@@ -81,11 +112,70 @@ export class GraphicComponent implements OnInit, AfterViewInit {
       });
   }
 
+  drawCursor({ offsetX, offsetY }: any) {
+    this.graphicCanvas.drawCursor(offsetX, offsetY);
+  }
+
+  setGraphicOffsets(x, y) {
+    const [invertedX, invertedY] = this.getInvertedOffsets(x, y);
+    let draggedOffsetY =
+      invertedY - this.graphicCanvas.getInvertedY(this.prevOffsetY);
+    let draggedOffsetX =
+      invertedX - this.graphicCanvas.getInvertedX(this.prevOffsetX);
+    this.graphicCanvas.setDraggedOffsets(draggedOffsetX, draggedOffsetY);
+    this.setPrevOffsets(x, y);
+  }
+
+  getInvertedOffsets(x, y) {
+    return [
+      this.graphicCanvas.getInvertedX(x),
+      this.graphicCanvas.getInvertedY(y)
+    ];
+  }
+
+  setPrevOffsets(x, y) {
+    this.prevOffsetX = x;
+    this.prevOffsetY = y;
+  }
+
+  initMouseEvents() {
+    const graphicMove$ = fromEvent(this.graphicERef.nativeElement, "mousemove");
+    const graphicDown$ = fromEvent(this.graphicERef.nativeElement, "mousedown");
+    const graphicUp$ = fromEvent(this.graphicERef.nativeElement, "mouseup");
+    const documentMove$ = fromEvent(document, "mousemove");
+    const documentUp$ = fromEvent(document, "mouseup");
+
+    graphicDown$.subscribe(({ screenX, screenY }) => {
+      this.setPrevOffsets(screenX, screenY);
+    });
+
+    graphicMove$.subscribe(e => {
+      this.redraw();
+      this.drawCursor(e);
+    });
+
+    documentMove$
+      .pipe(
+        skipUntil(graphicDown$),
+        takeUntil(documentUp$),
+        repeat()
+      )
+      .subscribe(({ screenX, screenY }: any) => {
+        this.setGraphicOffsets(screenX, screenY);
+        this.redraw(); // #TODO: Убрать нахуй, но без нее не рисует при выходе за график
+        // this.graphicCanvas.setDraggedOffsets(
+        //   this.draggedOffsetX,
+        //   this.draggedOffsetY
+        // );
+      });
+  }
+
   ngOnInit() {
     this.priceCanvas = new PriceCanvas(this.priceERef);
     this.timeCanvas = new TimeCanvas(this.timeERef);
     this.graphicCanvas = new GraphicCanvas(this.graphicERef);
     this.loadCandles();
+    this.initMouseEvents();
   }
 
   ngAfterViewInit() {}
