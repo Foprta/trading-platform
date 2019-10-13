@@ -14,7 +14,7 @@ export class GraphicCanvas extends Canvas {
   }
 
   public drawCandleBody({ open, close, time }) {
-    if (open > close) {
+    if (open < close) {
       this.context.fillStyle = "green";
     } else {
       this.context.fillStyle = "red";

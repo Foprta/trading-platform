@@ -1,5 +1,5 @@
 $bck-color: black;
-$border: 1px solid $bck-color;
+$border: 1px solid red;
 
 canvas {
     display: block;
@@ -15,7 +15,7 @@ canvas {
     background: $bck-color;
     border: $border;
     display: grid;
-    grid-gap: 1px;
+    gap: 1px;
     grid-template-areas:
         "graphic price-scale"
         "time-scale settings";

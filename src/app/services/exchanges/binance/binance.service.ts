@@ -56,7 +56,7 @@ export class BinanceService {
     return this._findSubscription('trade', symbol) || this._createSubscription('trade', symbol);
   }
 
-  getCandles(symbol: string, time: string, limit?: string, endTime?: string, startTime?: string) {
+  getCandles(symbol: string, time: string, limit?: number, endTime?: number, startTime?: number) {
     const options = {
       symbol: symbol,
       time: time,

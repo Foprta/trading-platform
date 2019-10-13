@@ -18,7 +18,7 @@ async function createBinanceConnection(req, res) {
 }
 
 router.post('/candlesticks', (req, res) => {
-    const options = new CandlesticksOptions(req.body.symbol, req.body.time)
+    const options = new CandlesticksOptions(req.body.symbol, req.body.time, req.body.limit, req.body.endTime, req.body.startTime)
     controller.candlesticks(res, options)
 })
 

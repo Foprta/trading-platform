@@ -5,7 +5,6 @@ import {
   Output,
   ViewChild,
   ElementRef,
-  Input,
   AfterViewInit
 } from "@angular/core";
 import { BinanceService } from "src/app/services/exchanges/binance/binance.service";
@@ -14,7 +13,12 @@ import { PriceCanvas } from "./classes/price-canvas.class";
 import { TimeCanvas } from "./classes/time-canvas.class";
 import { GraphicCanvas } from "./classes/graphic-canvas.class";
 import { fromEvent } from "rxjs";
-import { skipUntil, takeUntil, repeat } from "rxjs/operators";
+import {
+  skipUntil,
+  takeUntil,
+  repeat,
+} from "rxjs/operators";
+import {TIMES} from "./enums/times.enum"
 
 @Component({
   selector: "app-graphic",
@@ -37,7 +41,7 @@ export class GraphicComponent implements OnInit, AfterViewInit {
 
   loading: boolean = true;
   candles: Record<string, ICandle> = {};
-  minTime = Date.now().valueOf();
+  minTime = Date.now().valueOf();   // TODO: Сделать нормальные окна
   maxTime = 0;
   minPrice = 10000000;
   maxPrice = 0;
@@ -102,7 +106,8 @@ export class GraphicComponent implements OnInit, AfterViewInit {
     this.redraw();
   }
 
-  loadCandles(limit?: string, endTime?: string, startTime?: string) {
+  loadCandles(limit?: number, endTime?: number, startTime?: number) {
+    this.loading = true;
     this._binanceSevice
       .getCandles(this.symbol, this.time, limit, endTime, startTime)
       .subscribe(data => {
@@ -110,6 +115,20 @@ export class GraphicComponent implements OnInit, AfterViewInit {
         this.redraw();
         this.loading = false;
       });
+  }
+
+  initLastCandleStream() {
+    this._binanceSevice.getKline("btcusdt", "1m").subscribe(({ k }) => {
+      this.candles[k.t] = {
+        time: k.t,
+        open: parseFloat(k.o),
+        close: parseFloat(k.c),
+        high: parseFloat(k.h),
+        low: parseFloat(k.l),
+        volume: parseFloat(k.v)
+      };
+      this.redraw();
+    });
   }
 
   drawCursor({ offsetX, offsetY }: any) {
@@ -138,10 +157,20 @@ export class GraphicComponent implements OnInit, AfterViewInit {
     this.prevOffsetY = y;
   }
 
+  checkForCandlesLoading() {
+    if (this.minTime > this.graphicCanvas.getInvertedX(0)) {
+      this.loadCandles(null, this.minTime, null);
+    }
+  }
+
   initMouseEvents() {
     const graphicMove$ = fromEvent(this.graphicERef.nativeElement, "mousemove");
     const graphicDown$ = fromEvent(this.graphicERef.nativeElement, "mousedown");
     const graphicUp$ = fromEvent(this.graphicERef.nativeElement, "mouseup");
+    const graphicLeave$ = fromEvent(
+      this.graphicERef.nativeElement,
+      "mouseleave"
+    );
     const documentMove$ = fromEvent(document, "mousemove");
     const documentUp$ = fromEvent(document, "mouseup");
 
@@ -149,10 +178,24 @@ export class GraphicComponent implements OnInit, AfterViewInit {
       this.setPrevOffsets(screenX, screenY);
     });
 
-    graphicMove$.subscribe(e => {
-      this.redraw();
-      this.drawCursor(e);
-    });
+    graphicMove$
+      .pipe(
+        takeUntil(graphicDown$),
+        repeat()
+      )
+      .subscribe(e => {
+        this.redraw();
+        this.drawCursor(e);
+      });
+
+    graphicLeave$
+      .pipe(
+        skipUntil(graphicMove$),
+        repeat()
+      )
+      .subscribe(e => {
+        this.redraw();
+      });
 
     documentMove$
       .pipe(
@@ -162,12 +205,13 @@ export class GraphicComponent implements OnInit, AfterViewInit {
       )
       .subscribe(({ screenX, screenY }: any) => {
         this.setGraphicOffsets(screenX, screenY);
-        this.redraw(); // #TODO: Убрать нахуй, но без нее не рисует при выходе за график
-        // this.graphicCanvas.setDraggedOffsets(
-        //   this.draggedOffsetX,
-        //   this.draggedOffsetY
-        // );
+        this.redraw();
       });
+
+    // TODO: Сделать как-то привязанным к драггингу
+    documentUp$.subscribe(() => {
+      this.checkForCandlesLoading();
+    });
   }
 
   ngOnInit() {
@@ -175,6 +219,7 @@ export class GraphicComponent implements OnInit, AfterViewInit {
     this.timeCanvas = new TimeCanvas(this.timeERef);
     this.graphicCanvas = new GraphicCanvas(this.graphicERef);
     this.loadCandles();
+    this.initLastCandleStream();
     this.initMouseEvents();
   }
 
